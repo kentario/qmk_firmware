@@ -4,7 +4,7 @@
 #define DOUBLE_TAP_SHIFT_TURNS_ON_CAPS_WORD
 
 // Time in milliseconds before a oneshot key is released.
-#define ONESHOT_TIMEOUT 2000
+#define ONESHOT_TIMEOUT 1000
 
 #define LEADER_PER_KEY_TIMING
 // Each time a key of the sequence is pressed, an additional 250 milliseconds are given to complete the sequence.
