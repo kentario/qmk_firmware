@@ -10,31 +10,33 @@ enum ctrl_keycodes {
   MD_BOOT,               //Restart into bootloader after hold timeout
 };
 
-#define _QWERTY 0
-#define _COLEMAK_MOD_DH 1
-#define _FL 3
+#define _COLEMAK_MOD_DH 0
+#define _QWERTY 1
+#define _FL 2
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-  /* Keymap _QWERTY: QWERTY layer (Default Layer)
-   */
-  [_QWERTY] = LAYOUT(
-		     KC_ESC,        KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,         KC_F10,  KC_F11,  KC_F12,             KC_PSCR, KC_SCRL, KC_PAUS,
-		     KC_GRV,        KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,          KC_0,    KC_MINS, KC_EQL,  KC_BSPC,   KC_INS,  KC_HOME, KC_PGUP,
-		     KC_TAB,        KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,          KC_P,    KC_LBRC, KC_RBRC, KC_BSLS,   KC_DEL,  KC_END,  KC_PGDN,
-		     OSM(MOD_LCTL), KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,          KC_SCLN, KC_QUOT, KC_ENT,
-		     OSM(MOD_LSFT), KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,        KC_SLSH, OSM(MOD_RSFT),                        KC_UP,
-		     KC_CAPS_LOCK,  KC_LGUI, OSM(MOD_LALT),             KC_SPC,                             OSM(MOD_RALT), MO(_FL), KC_APP,  OSM(MOD_RCTL),      KC_LEFT, KC_DOWN, KC_RGHT
-		     ),
   /* Keymap _COLEMAK_MOD_DH: Colemak Mod-DH layer
    */
   [_COLEMAK_MOD_DH] = LAYOUT(
-			     _______,       _______, _______, _______, _______, _______, _______, _______, _______, _______,       _______, _______, _______,            _______, _______, _______,
-			     _______,       _______, _______, _______, _______, _______, _______, _______, _______, _______,       _______, _______, _______, _______,   _______, _______, _______,
-			     _______,       KC_Q,    KC_W,    KC_F,    KC_P,    KC_B,    KC_J,    KC_L,    KC_U,    KC_Y,          KC_SCLN, _______, _______, _______,   _______, _______, _______,
-			     _______,       KC_A,    KC_R,    KC_S,    KC_T,    KC_G,    KC_M,    KC_N,    KC_E,    KC_I,          KC_O,    _______, _______,
-			     _______,       KC_X,    KC_C,    KC_D,    KC_V,    KC_Z,    KC_K,    KC_H,    _______, _______,       _______, _______,                              _______,
-			     _______,       _______, _______,                   _______,                            _______,       MO(_FL), _______, _______,            _______, _______, _______
+			     KC_ESC,        KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,         KC_F10,  KC_F11,  KC_F12,             KC_PSCR, KC_SCRL, KC_PAUS,
+			     KC_GRV,        KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,          KC_0,    KC_MINS, KC_EQL,  KC_BSPC,   KC_INS,  KC_HOME, KC_PGUP,
+			     KC_TAB,        KC_Q,    KC_W,    KC_F,    KC_P,    KC_B,    KC_J,    KC_L,    KC_U,    KC_Y,          KC_SCLN, KC_LBRC, KC_RBRC, KC_BSLS,   KC_DEL,  KC_END,  KC_PGDN,
+			     OSM(MOD_LCTL), KC_A,    KC_R,    KC_S,    KC_T,    KC_G,    KC_M,    KC_N,    KC_E,    KC_I,          KC_O,    KC_QUOT, KC_ENT,
+			     OSM(MOD_LSFT), KC_X,    KC_C,    KC_D,    KC_V,    KC_Z,    KC_K,    KC_H,    KC_COMM, KC_DOT,        KC_SLSH, OSM(MOD_RSFT),                        KC_UP,
+			     KC_CAPS_LOCK,  KC_LGUI, OSM(MOD_LALT),             KC_SPC,                             OSM(MOD_RALT), MO(_FL), KC_APP,  OSM(MOD_RCTL),      KC_LEFT, KC_DOWN, KC_RGHT
 			     ),
+
+  /* Keymap _QWERTY: QWERTY layer (Default Layer)
+   */
+  [_QWERTY] = LAYOUT(
+		     _______,       _______, _______, _______, _______, _______, _______, _______, _______, _______,       _______, _______, _______,            _______, _______, _______,
+		     _______,       _______, _______, _______, _______, _______, _______, _______, _______, _______,       _______, _______, _______, _______,   _______, _______, _______,
+		     _______,       KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,          KC_P,    _______, _______, _______,   _______, _______, _______,
+		     _______,       KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,          KC_SCLN, _______, _______,
+		     _______,       KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    _______, _______,       _______, _______,                              _______,
+		     _______,       _______, _______,                   _______,                            _______,       MO(_FL), _______, _______,            _______, _______, _______
+		     ),
+
   /* Keymap _FL: Function Layer
    */
   [_FL] = LAYOUT(
@@ -45,6 +47,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		 _______,       RGB_TOG, _______, _______, _______, MD_BOOT, NK_TOGG, _______, _______, _______,       _______, _______,                              _______,
 		 _______,       _______, _______,                   _______,                            _______,       MO(_FL), _______, _______,            _______, _______, _______
 		 ),
+
+  /*
+    [X] = LAYOUT(
+                 _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,            _______, _______, _______,
+                 _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,   _______, _______, _______,
+                 _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,   _______, _______, _______,
+                 _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
+                 _______, _______, _______, _______, _______, _______, NK_TOGG, _______, _______, _______, _______, _______,                              _______,
+                 _______, _______, _______,                   _______,                            _______, _______, _______, _______,            _______, _______, _______
+    ),
+  */
 };
 
 /*
@@ -72,13 +85,9 @@ combo_t key_combos[] = {
 */
 void leader_end_user (void) {
   if (leader_sequence_two_keys(KC_Q, KC_Y)) {
-    SEND_STRING("QY");
-    
-    tap_code16(DF(_QWERTY));
+    layer_move(_QWERTY);
   } else if (leader_sequence_two_keys(KC_C, KC_D)) {
-    SEND_STRING("CD");
-    
-    tap_code16(DF(_COLEMAK_MOD_DH));
+    layer_move(_COLEMAK_MOD_DH);
   }
 }
 
