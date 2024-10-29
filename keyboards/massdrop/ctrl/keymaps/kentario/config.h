@@ -10,7 +10,7 @@
 // Each time a key of the sequence is pressed, an additional 250 milliseconds are given to complete the sequence.
 #define LEADER_TIMEOUT 250
 
-// All combos are done as if the current layer is the QWERTY layer.
+// All combos are done as if the current layer is the Colemak Mod-DH layer.
 #define COMBO_ONLY_FROM_LAYER 0
 
 // Time in milliseconds in which the key needs to be repeated in order to be detected as a multi tap.

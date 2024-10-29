@@ -69,7 +69,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   Combos
   https://docs.qmk.fm/features/combo
 */
-const uint16_t PROGMEM leader_combo[] = {KC_D, KC_F, KC_J, KC_K, COMBO_END};
+const uint16_t PROGMEM leader_combo[] = {KC_S, KC_T, KC_N, KC_E, COMBO_END};
 
 combo_t key_combos[] = {
   COMBO(leader_combo, QK_LEAD),
