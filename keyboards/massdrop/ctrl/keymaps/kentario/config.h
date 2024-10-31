@@ -1,7 +1,7 @@
 #pragma once
 
 // Double tapping left shift turns on caps word.
-#define DOUBLE_TAP_SHIFT_TURNS_ON_CAPS_WORD
+#define BOTH_SHIFTS_TURNS_ON_CAPS_WORD
 
 // Time in milliseconds before a oneshot key is released.
 #define ONESHOT_TIMEOUT 1000
