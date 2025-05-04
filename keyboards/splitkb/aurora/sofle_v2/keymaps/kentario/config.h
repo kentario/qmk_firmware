@@ -23,11 +23,13 @@
 #define ENABLE_RGB_MATRIX_RAINBOW_BEACON
 #define ENABLE_RGB_MATRIX_CYCLE_LEFT_RIGHT
 
-// Time in milliseconds before a oneshot key is released.
-#define ONESHOT_TIMEOUT 1000
+// Oneshot keys don't time out.
+#define ONESHOT_TIMEOUT 0
 
 // Double tab left shift to turn on caps word.
 #define DOUBLE_TAP_SHIFT_TURNS_ON_CAPS_WORD
+// Caps word has no idle timeout.
+#define CAPS_WORD_IDLE_TIMEOUT 0
 
 // Time in milliseconds in which the key needs to be repeated in order to be detected as a multi tap.
 #define TAPPING_TERM 200
