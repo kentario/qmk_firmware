@@ -26,10 +26,11 @@
 // Oneshot keys don't time out.
 #define ONESHOT_TIMEOUT 0
 
-// Double tab left shift to turn on caps word.
-#define DOUBLE_TAP_SHIFT_TURNS_ON_CAPS_WORD
+// Press left and right shift at the same time to enagle caps word.
+#define BOTH_SHIFTS_TURNS_ON_CAPS_WORD
+
 // Caps word has no idle timeout.
 #define CAPS_WORD_IDLE_TIMEOUT 0
 
 // Time in milliseconds in which the key needs to be repeated in order to be detected as a multi tap.
-#define TAPPING_TERM 200
+#define TAPPING_TERM 500

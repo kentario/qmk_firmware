@@ -5,10 +5,11 @@
 #endif
 
 enum layers {
-  DEF,
+  COL,
+  EXT,
   NUM,
   SYM,
-  EXT,
+  QWT,
 };
 
 #define OS_LSFT OSM(MOD_LSFT)
@@ -20,7 +21,12 @@ enum layers {
 #define OS_LGUI OSM(MOD_LGUI) // LGUI and RGUI one shot keys are not used.
 #define OS_RGUI OSM(MOD_RGUI)
 
+// For switching layers
+#define DF_COL DF(COL)
+#define DF_QWT DF(QWT)
+
 #define OS_SYM OSL(SYM)
+#define MO_SYM MO(SYM)
 #define OS_EXT OSL(EXT)
 #define MO_EXT MO(EXT)
 #define OS_NUM OSL(NUM)
@@ -30,30 +36,148 @@ enum my_keycodes {
   CLEAR_OS = SAFE_RANGE,
 };
 
+enum tap_dance_keycodes {
+  TD_NUM,
+  TD_EXT,
+};
+
+typedef enum {
+  TD_NONE,
+  TD_SINGLE_TAP,
+  TD_SINGLE_HOLD,
+  TD_DOUBLE_TAP,
+  TD_DOUBLE_HOLD,
+  TD_TRIPLE_TAP,
+  TD_TRIPLE_HOLD,
+} td_state_t;
+
+static td_state_t td_state = TD_NONE;
+
+typedef struct {
+  uint8_t layer;
+  uint8_t mod;
+} td_layer_mod_t;
+
+td_state_t current_dance (tap_dance_state_t *state) {
+  switch (state->count) {
+  case 1:
+    return state->pressed ? TD_SINGLE_HOLD : TD_SINGLE_TAP;
+  case 2:
+    return state->pressed ? TD_DOUBLE_HOLD : TD_DOUBLE_TAP;
+  case 3:
+    return state->pressed ? TD_TRIPLE_HOLD : TD_TRIPLE_TAP;
+  default:
+    return TD_NONE;
+  }
+}
+
+void td_oslm_finished (tap_dance_state_t *state, void *user_data) {
+  td_layer_mod_t *cfg = (td_layer_mod_t *)user_data;
+  td_state = current_dance(state);
+  
+  switch (td_state) {
+  case TD_SINGLE_TAP:
+    set_oneshot_layer(cfg->layer, ONESHOT_START);
+    break;
+    
+  case TD_SINGLE_HOLD:
+    layer_on(cfg->layer);
+    break;
+    
+  case TD_DOUBLE_TAP:
+    set_oneshot_mods(cfg->mod);
+    break;
+
+  case TD_DOUBLE_HOLD:
+    add_mods(cfg->mod);
+    break;
+
+  case TD_TRIPLE_TAP:
+    set_oneshot_layer(cfg->layer, ONESHOT_START);
+    set_oneshot_mods(cfg->mod);
+    break;
+
+  case TD_TRIPLE_HOLD:
+    layer_on(cfg->layer);
+    add_mods(cfg->mod);
+    break;
+
+  default:
+    break;
+  }
+}
+
+void td_oslm_reset (tap_dance_state_t *state, void *user_data) {
+  td_layer_mod_t *cfg = (td_layer_mod_t *)user_data;
+  
+  switch (td_state) {
+  case TD_SINGLE_TAP:
+    clear_oneshot_layer_state(ONESHOT_PRESSED);
+    break;
+
+  case TD_SINGLE_HOLD:
+    layer_off(cfg->layer);
+    break;
+
+  case TD_DOUBLE_HOLD:
+    del_mods(cfg->mod);
+    break;
+
+  case TD_TRIPLE_TAP:
+    clear_oneshot_layer_state(ONESHOT_PRESSED);
+    break;
+    
+  case TD_TRIPLE_HOLD:
+    layer_off(cfg->layer);
+    del_mods(cfg->mod);
+    break;
+
+  default:
+    break;
+  }
+
+  td_state = TD_NONE;
+}
+
+#define ACTION_TAP_DANCE_OSLM(config)				\
+  {								\
+    .fn        = {NULL, td_oslm_finished, td_oslm_reset},	\
+    .user_data = (void *)&(config),				\
+  }
+
+static const td_layer_mod_t td_num_cfg = {NUM, MOD_LCTL};
+static const td_layer_mod_t td_ext_cfg = {EXT, MOD_LALT};
+
+tap_dance_action_t tap_dance_actions[] = {
+  [TD_NUM] = ACTION_TAP_DANCE_OSLM(td_num_cfg),
+  [TD_EXT] = ACTION_TAP_DANCE_OSLM(td_ext_cfg),
+};
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-    [DEF] = LAYOUT(
-		   _______   , KC_1      , KC_2      , KC_3      , KC_4      , KC_5      ,                         KC_6      , KC_7      , KC_8      , KC_9      , KC_0      , CLEAR_OS  ,
+    [COL] = LAYOUT(
+		   _______   , KC_1      , KC_2      , KC_3      , KC_4      , KC_5      ,                         KC_6      , KC_7      , KC_8      , KC_9      , KC_0      , DF_QWT    ,
 		   KC_ESC    , KC_Q      , KC_W      , KC_F      , KC_P      , KC_B      ,                         KC_J      , KC_L      , KC_U      , KC_Y      , KC_SCLN   , KC_QUOT   ,
 		   KC_TAB    , KC_A      , KC_R      , KC_S      , KC_T      , KC_G      ,                         KC_M      , KC_N      , KC_E      , KC_I      , KC_O      , KC_BSPC   ,
 		   KC_LGUI   , KC_Z      , KC_X      , KC_C      , KC_D      , KC_V      , _______   , _______   , KC_K      , KC_H      , KC_COMM   , KC_DOT    , KC_SLSH   , OS_RGUI   ,
-		                           _______   , QK_REP    , OS_LSFT   , KC_SPC    , OS_NUM    , OS_SYM    , KC_ENT    , OS_RSFT   , QK_AREP   , _______
+		                           CLEAR_OS  , QK_REP    , OS_LSFT   , KC_SPC    , TD(TD_NUM), TD(TD_EXT), KC_ENT    , OS_RSFT   , QK_AREP   , _______
 
 		   ),
 
+    [QWT] = LAYOUT(
+		   KC_ESC    , KC_1      , KC_2      , KC_3      , KC_4      , KC_5      ,                         KC_6      , KC_7      , KC_8      , KC_9      , KC_0      , DF_COL    ,
+		   KC_TAB    , KC_Q      , KC_W      , KC_E      , KC_R      , KC_T      ,                         KC_Y      , KC_U      , KC_I      , KC_O      , KC_P      , KC_QUOT   ,
+		   KC_LCTL   , KC_A      , KC_S      , KC_D      , KC_F      , KC_G      ,                         KC_H      , KC_J      , KC_K      , KC_L      , KC_SCLN   , KC_BSPC   ,
+		   KC_LSFT   , KC_Z      , KC_X      , KC_C      , KC_V      , KC_B      , _______   , _______   , KC_N      , KC_M      , KC_COMM   , KC_DOT    , KC_SLSH   , OS_RGUI   ,
+		                           CLEAR_OS  , MO(SYM)   , KC_LALT   , KC_SPC    , KC_SPC    , KC_ENT    , KC_ENT    , _______   , _______   , _______
+
+		   ),
+    
     [NUM] = LAYOUT(
 		   KC_F1     , KC_F2     , KC_F3     , KC_F4     , KC_F5     , KC_F6     ,                         KC_F7     , KC_F8     , KC_F9     , KC_F10    , KC_F11    , KC_F12    ,
-		   KC_GRV    , KC_UNDS   , KC_LCBR   , KC_LPRN   , KC_LBRC   , KC_MINS   ,                         KC_PLUS   , KC_RBRC   , KC_RPRN   , KC_RCBR   , KC_SCLN   , KC_BSLS   ,
-		   KC_TILD   , KC_1      , KC_2      , KC_3      , KC_4      , KC_5      ,                         KC_6      , KC_7      , KC_8      , KC_9      , KC_0      , KC_BSPC   ,
-		   _______   , KC_EXLM   , KC_AT     , KC_HASH   , KC_DLR    , KC_PERC   , _______   , _______   , KC_CIRC   , KC_AMPR   , KC_ASTR   , KC_DOT    , KC_SLSH   , KC_PIPE   ,
-		                           _______   , _______   , _______   , _______   , _______   , MO_EXT    , _______   , _______   , _______   , _______
- 		 ),
-
-    [SYM] = LAYOUT(
-		   _______   , _______   , _______   , _______   , _______   , _______   ,                         _______   , _______   , _______   , _______   , _______   , _______   ,
-		   KC_GRV    , KC_UNDS   , KC_LCBR   , KC_LPRN   , KC_LBRC   , KC_MINS   ,                         KC_PLUS   , KC_RBRC   , KC_RPRN   , KC_RCBR   , KC_SCLN   , KC_BSLS   ,
-		   KC_TAB    , KC_UNDS   , KC_EQUAL  , KC_PLUS   , KC_MINUS  , KC_LABK   ,                         KC_RABK   , KC_ASTR   , KC_8      , KC_9      , KC_PIPE   , KC_BSPC   ,
-		   _______   , KC_EXLM   , KC_AT     , KC_PLUS   , KC_DLR    , KC_PERC   , _______   , _______   , KC_CIRC   , KC_AMPR   , KC_ASTR   , KC_EQL    , KC_RPRN   , KC_PIPE   ,
-		                           _______   , _______   , _______   , _______   , MO_EXT    , _______   , _______   , _______   , _______   , _______
+		   KC_GRV    , KC_EQUAL  , KC_MINUS  , KC_LPRN   , KC_PLUS   , KC_MINS   ,                         KC_PLUS   , KC_ASTR   , KC_RPRN   , KC_SLSH   , KC_SCLN   , KC_BSLS   ,
+		   _______   , KC_1      , KC_2      , KC_3      , KC_4      , KC_5      ,                         KC_6      , KC_7      , KC_8      , KC_9      , KC_0      , _______   ,
+ 		   _______   , KC_EXLM   , KC_AT     , KC_HASH   , KC_DLR    , KC_PERC   , _______   , _______   , KC_CIRC   , KC_AMPR   , KC_ASTR   , KC_LPRN   , KC_RPRN   , KC_PIPE   ,
+		                           CLEAR_OS  , _______   , _______   , _______   , _______   , MO_SYM    , _______   , _______   , _______   , _______
 		   ),
 
     [EXT] = LAYOUT(
@@ -61,8 +185,16 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		   _______   , KC_INS    , KC_PSCR   , KC_APP    , XXXXXXX   , XXXXXXX   ,                         KC_PGUP   , C(KC_LEFT), KC_UP     , C(KC_RGHT), C(KC_BSPC), KC_BSPC   ,
 		   _______   , KC_LGUI   , KC_LALT   , KC_LCTL   , KC_LSFT   , KC_CAPS   ,                         KC_PGDN   , KC_LEFT   , KC_DOWN   , KC_RIGHT  , KC_BSPC   , KC_DEL    ,
 		   _______   , C(KC_Z)   , C(KC_X)   , C(KC_C)   , C(KC_V)   , XXXXXXX   , _______   , _______   , XXXXXXX   , KC_HOME   , KC_BSPC   , KC_END    , XXXXXXX   , _______   ,
-		                           _______   , _______   , _______   , _______   , _______   , _______   , _______   , _______   , _______   , _______
-		   )
+		                           CLEAR_OS  , _______   , _______   , _______   , MO_SYM    , _______   , _______   , _______   , _______   , _______
+		   ),
+
+    [SYM] = LAYOUT(
+		   _______   , _______   , _______   , _______   , _______   , _______   ,                         _______   , _______   , _______   , _______   , _______   , _______   ,
+		   KC_GRV    , KC_UNDS   , KC_LCBR   , KC_LPRN   , KC_LBRC   , KC_MINS   ,                         KC_PLUS   , KC_RBRC   , KC_RPRN   , KC_RCBR   , KC_SCLN   , KC_PIPE   ,
+		   _______   , KC_UNDS   , KC_EQUAL  , KC_PLUS   , KC_MINUS  , KC_LABK   ,                         KC_RABK   , KC_ASTR   , KC_8      , KC_9      , KC_PIPE   , _______   ,
+		   _______   , KC_EXLM   , KC_AT     , KC_PLUS   , KC_DLR    , KC_PERC   , _______   , _______   , KC_CIRC   , KC_AMPR   , KC_ASTR   , KC_EQL    , KC_RPRN   , KC_PIPE   ,
+		                           CLEAR_OS  , _______   , _______   , _______   , _______   , _______   , _______   , _______   , _______   , _______
+		   ),
 
     /* [SYM] = LAYOUT( */
     /* 		   KC_F1     , KC_F2     , KC_F3     , KC_F4     , KC_F5     , KC_F6     ,                         KC_F7     , KC_F8     , KC_F9     , KC_F10    , KC_F11    , KC_F12    , */
@@ -89,27 +221,30 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     /* 		 ) */
 };
 
-//const uint16_t PROGMEM os_lctl_combo[] = {KC_S, KC_F, COMBO_END};
-//const uint16_t PROGMEM os_rctl_combo[] = {KC_E, KC_U, COMBO_END};
-//const uint16_t PROGMEM os_lalt_combo[] = {KC_R, KC_W, COMBO_END};
-//const uint16_t PROGMEM os_ralt_combo[] = {KC_I, KC_Y, COMBO_END};
-const uint16_t PROGMEM os_lctl_combo[] = {KC_SPC, OS_SYM, COMBO_END};
+const uint16_t PROGMEM os_lctl_combo[] = {KC_SPC, OS_EXT, COMBO_END};
 const uint16_t PROGMEM os_lalt_combo[] = {KC_ENT, OS_NUM, COMBO_END};
 
 combo_t key_combos[] = {
-  COMBO(os_lctl_combo, OS_LCTL),
-  //  COMBO(os_rctl_combo, OS_RCTL),
-  COMBO(os_lalt_combo, OS_LALT),
-  //  COMBO(os_ralt_combo, OS_RALT),
-  
+  //  COMBO(os_lctl_combo, OS_LCTL),
+  //  COMBO(os_lalt_combo, OS_LALT),
 };
 
 bool process_record_user (uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
   case CLEAR_OS:
     if (record->event.pressed) {
+      // Modifiers
+      clear_mods();
+      clear_oneshot_mods();
+      // Layers
+      layer_clear();
+      clear_oneshot_layer_state(ONESHOT_PRESSED);
+      reset_oneshot_layer();
+      // Caps word
+      caps_word_off();
     }
     return false;
+    
   default:
     return true;
   }
